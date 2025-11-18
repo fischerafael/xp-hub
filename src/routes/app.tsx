@@ -7,7 +7,7 @@ import { Header } from "@/components/header";
 import { XPList } from "@/components/xp-list";
 import { AddXPModal } from "@/components/add-xp-modal";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getXpByOwnerId } from "@/src/services/xp-service";
+import { getXpByOwnerId, removeXp } from "@/src/services/xp-service";
 import { useState, useMemo } from "react";
 
 const OWNER_ID = "user-1"; // TODO: Substituir por autenticação real
@@ -44,6 +44,16 @@ export function AppPage() {
     queryClient.invalidateQueries({ queryKey: ["xps", OWNER_ID] });
   };
 
+  const handleXPDeleted = async (id: string) => {
+    try {
+      await removeXp(id);
+      // Invalidar a query para atualizar a lista
+      queryClient.invalidateQueries({ queryKey: ["xps", OWNER_ID] });
+    } catch (error) {
+      console.error("Erro ao remover XP:", error);
+    }
+  };
+
   return (
     <div className="flex min-h-screen justify-between flex-col">
       <div className="mx-auto w-full max-w-4xl px-4">
@@ -61,7 +71,7 @@ export function AppPage() {
               Carregando...
             </div>
           ) : (
-            <XPList xps={filteredXPs} />
+            <XPList xps={filteredXPs} onDelete={handleXPDeleted} />
           )}
         </main>
       </div>

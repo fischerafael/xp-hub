@@ -68,7 +68,9 @@ export function AddXPModal({
       if (duration) {
         const durationHours = parseFloat(duration);
         // Validate it's a multiple of 0.25 (multiply by 4 and check if it's an integer)
-        if (Math.abs(Math.round(durationHours * 4) - durationHours * 4) > 0.001) {
+        if (
+          Math.abs(Math.round(durationHours * 4) - durationHours * 4) > 0.001
+        ) {
           setError("Duration must be a multiple of 0.25 (15 minutes)");
           setIsSubmitting(false);
           return;

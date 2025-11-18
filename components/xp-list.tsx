@@ -5,6 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Trash2 } from "lucide-react";
 
 export interface XP {
   id: string;
@@ -18,9 +19,10 @@ export interface XP {
 
 interface XPListProps {
   xps: XP[];
+  onDelete?: (id: string) => void;
 }
 
-export function XPList({ xps }: XPListProps) {
+export function XPList({ xps, onDelete }: XPListProps) {
   const formatTime = (timeString: string) => {
     const date = new Date(timeString);
     return date.toLocaleTimeString("pt-BR", {
@@ -48,7 +50,7 @@ export function XPList({ xps }: XPListProps) {
   return (
     <div className="space-y-4">
       {xps.map((xp) => (
-        <Card key={xp.id}>
+        <Card key={xp.id} className="relative">
           <CardHeader>
             <div className="flex items-start justify-between">
               <div className="flex-1">
@@ -81,6 +83,15 @@ export function XPList({ xps }: XPListProps) {
               )}
             </div>
           </CardContent>
+          {onDelete && (
+            <button
+              onClick={() => onDelete(xp.id)}
+              className="absolute bottom-4 right-4 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+              aria-label="Remover XP"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          )}
         </Card>
       ))}
     </div>

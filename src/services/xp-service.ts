@@ -52,3 +52,26 @@ export async function addXp(xp: Omit<XP, "id" | "createdAt">): Promise<XP> {
     throw error;
   }
 }
+
+/**
+ * Remove um XP do localStorage pelo id
+ */
+export async function removeXp(id: string): Promise<void> {
+  try {
+    if (typeof window === "undefined") {
+      throw new Error("localStorage não está disponível");
+    }
+
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) {
+      return;
+    }
+
+    const allXPs: XP[] = JSON.parse(stored);
+    const filteredXPs = allXPs.filter((xp) => xp.id !== id);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(filteredXPs));
+  } catch (error) {
+    console.error("Erro ao remover XP:", error);
+    throw error;
+  }
+}
