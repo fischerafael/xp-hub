@@ -1,0 +1,32 @@
+# Cursor Rules
+
+## Estrutura de Arquivos
+
+- As rotas do Next.js devem estar desacopladas do código do app
+- Na pasta `app/`, os arquivos de rota (`page.tsx`, `layout.tsx`, etc.) devem apenas importar e renderizar componentes de rotas
+- Os componentes de rotas (com toda a lógica e estrutura) devem ficar em `src/routes/nome_da_rota.tsx`
+- Exemplo:
+  - Rota: `app/app/page.tsx` → apenas importa e renderiza `AppPage` de `src/routes/app.tsx`
+  - Componente da rota: `src/routes/app.tsx` → contém toda a lógica e estrutura da página
+
+## Regras
+
+1. **Rotas (`app/**/page.tsx`)**: Devem ser arquivos simples que apenas importam e exportam o componente da rota correspondente de `src/routes/`
+2. **Rotas (`src/routes/*.tsx`)**: Contêm toda a lógica, estado, e estrutura da página
+3. **Componentes reutilizáveis**: Ficam em `components/`
+4. **Utilitários**: Ficam em `lib/`
+
+## Exemplo de Estrutura
+
+```
+app/
+  app/
+    page.tsx          # Apenas: import { AppPage } from "@/src/routes/app"; export default function Page() { return <AppPage />; }
+src/
+  routes/
+    app.tsx           # Toda a lógica e estrutura da página /app
+components/
+  header.tsx
+  footer.tsx
+  ...
+```
