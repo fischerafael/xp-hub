@@ -136,7 +136,7 @@ export function AppPage() {
   };
 
   const handleCopyTitles = async () => {
-    const titles = filteredXPs.map((xp) => xp.title).join("\n");
+    const titles = filteredXPs.map((xp) => `- ${xp.title}`).join("\n");
     try {
       await navigator.clipboard.writeText(titles);
     } catch (error) {
