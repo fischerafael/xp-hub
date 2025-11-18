@@ -81,17 +81,17 @@ export function XPList({ xps, onDelete }: XPListProps) {
                   {formatDuration(xp.duration)}
                 </span>
               )}
+              {onDelete && (
+                <button
+                  onClick={() => onDelete(xp.id)}
+                  className="bottom-4 right-4 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                  aria-label="Remover XP"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
             </div>
           </CardContent>
-          {onDelete && (
-            <button
-              onClick={() => onDelete(xp.id)}
-              className="absolute bottom-4 right-4 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-              aria-label="Remover XP"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
-          )}
         </Card>
       ))}
     </div>
