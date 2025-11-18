@@ -4,45 +4,44 @@ import { Button } from "@/components/ui/button";
 import { DateSelector } from "@/components/date-selector";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
-import { XPList, type XP } from "@/components/xp-list";
+import { XPList } from "@/components/xp-list";
+import { AddXPModal } from "@/components/add-xp-modal";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getXpByOwnerId } from "@/src/services/xp-service";
+import { useState, useMemo } from "react";
 
-// Dados mockados de XPs
-const mockXPs: XP[] = [
-  {
-    id: "1",
-    title: "Implementação de autenticação",
-    description: "Criação do sistema de login e registro de usuários",
-    tags: ["backend", "autenticação", "segurança"],
-    createdAt: new Date().toISOString(),
-    duration: 120,
-  },
-  {
-    id: "2",
-    title: "Refatoração de componentes",
-    tags: ["frontend", "react"],
-    createdAt: new Date(Date.now() - 3600000).toISOString(),
-    duration: 45,
-  },
-  {
-    id: "3",
-    title: "Reunião de planejamento",
-    description: "Discussão sobre as próximas features do projeto",
-    tags: ["reunião", "planejamento"],
-    createdAt: new Date(Date.now() - 7200000).toISOString(),
-  },
-  {
-    id: "4",
-    title: "Testes unitários",
-    tags: ["testes", "qualidade"],
-    createdAt: new Date(Date.now() - 10800000).toISOString(),
-    duration: 90,
-  },
-];
+const OWNER_ID = "user-1"; // TODO: Substituir por autenticação real
 
 export function AppPage() {
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const queryClient = useQueryClient();
+
+  const { data: allXPs = [], isLoading } = useQuery({
+    queryKey: ["xps", OWNER_ID],
+    queryFn: () => getXpByOwnerId(OWNER_ID),
+  });
+
+  // Filtrar XPs pela data selecionada
+  const filteredXPs = useMemo(() => {
+    const startOfDay = new Date(selectedDate);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(selectedDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    return allXPs.filter((xp) => {
+      const xpDate = new Date(xp.createdAt);
+      return xpDate >= startOfDay && xpDate <= endOfDay;
+    });
+  }, [allXPs, selectedDate]);
+
   const handleAddXP = () => {
-    // TODO: Implementar adição de XP
-    console.log("Add XP clicked");
+    setIsModalOpen(true);
+  };
+
+  const handleXPAdded = () => {
+    // Invalidar a query para atualizar a lista
+    queryClient.invalidateQueries({ queryKey: ["xps", OWNER_ID] });
   };
 
   return (
@@ -51,13 +50,28 @@ export function AppPage() {
         <Header />
         <main className="py-6">
           <div className="mb-6 flex items-center justify-between gap-4">
-            <DateSelector />
+            <DateSelector
+              selectedDate={selectedDate}
+              onDateChange={setSelectedDate}
+            />
             <Button onClick={handleAddXP}>Add XP</Button>
           </div>
-          <XPList xps={mockXPs} />
+          {isLoading ? (
+            <div className="py-8 text-center text-sm text-muted-foreground">
+              Carregando...
+            </div>
+          ) : (
+            <XPList xps={filteredXPs} />
+          )}
         </main>
       </div>
       <Footer />
+      <AddXPModal
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        ownerId={OWNER_ID}
+        onSuccess={handleXPAdded}
+      />
     </div>
   );
 }

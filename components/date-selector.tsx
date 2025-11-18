@@ -2,11 +2,16 @@
 
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
 
-export function DateSelector() {
-  const [selectedDate, setSelectedDate] = useState(new Date());
+interface DateSelectorProps {
+  selectedDate: Date;
+  onDateChange: (date: Date) => void;
+}
 
+export function DateSelector({
+  selectedDate,
+  onDateChange,
+}: DateSelectorProps) {
   const formatDate = (date: Date) => {
     return date.toLocaleDateString("pt-BR", {
       weekday: "long",
@@ -19,13 +24,13 @@ export function DateSelector() {
   const goToPreviousDay = () => {
     const newDate = new Date(selectedDate);
     newDate.setDate(newDate.getDate() - 1);
-    setSelectedDate(newDate);
+    onDateChange(newDate);
   };
 
   const goToNextDay = () => {
     const newDate = new Date(selectedDate);
     newDate.setDate(newDate.getDate() + 1);
-    setSelectedDate(newDate);
+    onDateChange(newDate);
   };
 
   return (

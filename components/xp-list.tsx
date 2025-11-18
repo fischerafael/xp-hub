@@ -13,6 +13,7 @@ export interface XP {
   tags: string[];
   createdAt: string;
   duration?: number;
+  ownerId: string;
 }
 
 interface XPListProps {
