@@ -15,6 +15,7 @@ import {
 } from "@/src/services/xp-service";
 import { getCategoriesByOwnerId } from "@/src/services/category-service";
 import { useState, useMemo } from "react";
+import { Copy } from "lucide-react";
 
 const OWNER_ID = "user-1"; // TODO: Substituir por autenticação real
 
@@ -45,7 +46,7 @@ export function AppPage() {
     const endOfDay = new Date(selectedDate);
     endOfDay.setHours(23, 59, 59, 999);
 
-    return allXPs.filter((xp) => {
+    const filtered = allXPs.filter((xp) => {
       // Filtro por data
       const xpDate = new Date(xp.createdAt);
       const isInDateRange = xpDate >= startOfDay && xpDate <= endOfDay;
@@ -68,6 +69,13 @@ export function AppPage() {
       }
 
       return true;
+    });
+
+    // Ordenar por createdAt (mais recente primeiro)
+    return filtered.sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return dateB - dateA;
     });
   }, [allXPs, selectedDate, titleFilter, selectedCategoryTitles]);
 
@@ -119,6 +127,30 @@ export function AppPage() {
     );
   };
 
+  const formatDuration = (minutes?: number) => {
+    if (!minutes) return null;
+    if (minutes < 60) return `${minutes}min`;
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return mins > 0 ? `${hours}h ${mins}min` : `${hours}h`;
+  };
+
+  const handleCopyTitles = async () => {
+    const titles = filteredXPs.map((xp) => xp.title).join("\n");
+    try {
+      await navigator.clipboard.writeText(titles);
+    } catch (error) {
+      console.error("Erro ao copiar títulos:", error);
+    }
+  };
+
+  // Calcular duração total dos XPs filtrados
+  const totalDuration = useMemo(() => {
+    return filteredXPs.reduce((total, xp) => {
+      return total + (xp.duration || 0);
+    }, 0);
+  }, [filteredXPs]);
+
   return (
     <div className="flex min-h-screen justify-between flex-col">
       <div className="mx-auto w-full max-w-4xl px-4">
@@ -149,14 +181,39 @@ export function AppPage() {
           </div>
           {isLoading ? (
             <div className="py-8 text-center text-sm text-muted-foreground">
-              Carregando...
+              Loading...
             </div>
           ) : (
-            <XPList
-              xps={filteredXPs}
-              onDelete={handleXPDeleted}
-              onItemClick={handleItemClick}
-            />
+            <>
+              <XPList
+                xps={filteredXPs}
+                onDelete={handleXPDeleted}
+                onItemClick={handleItemClick}
+              />
+              {filteredXPs.length > 0 && (
+                <div className="mt-6 flex items-center justify-between border-t pt-4">
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <span>
+                      {filteredXPs.length} XP
+                      {filteredXPs.length !== 1 ? "s" : ""}
+                    </span>
+                    {totalDuration > 0 && (
+                      <span>
+                        Total duration: {formatDuration(totalDuration)}
+                      </span>
+                    )}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleCopyTitles}
+                    aria-label="Copiar títulos"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </main>
       </div>
