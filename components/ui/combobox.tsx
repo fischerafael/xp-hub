@@ -44,9 +44,22 @@ export function Combobox({
     }
   };
 
-  const removeOption = (optionValue: string, e: React.MouseEvent) => {
+  const removeOption = (
+    optionValue: string,
+    e: React.MouseEvent | React.KeyboardEvent
+  ) => {
     e.stopPropagation();
     onChange(value.filter((v) => v !== optionValue));
+  };
+
+  const handleRemoveKeyDown = (
+    optionValue: string,
+    e: React.KeyboardEvent
+  ) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      removeOption(optionValue, e);
+    }
   };
 
   return (
@@ -71,13 +84,15 @@ export function Combobox({
                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-secondary text-secondary-foreground text-sm"
                 >
                   {option.label}
-                  <button
-                    type="button"
+                  <span
+                    role="button"
+                    tabIndex={0}
                     onClick={(e) => removeOption(option.value, e)}
-                    className="ml-1 rounded-sm hover:bg-secondary-foreground/20 p-0.5"
+                    onKeyDown={(e) => handleRemoveKeyDown(option.value, e)}
+                    className="ml-1 rounded-sm hover:bg-secondary-foreground/20 p-0.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
                   >
                     <X className="h-3 w-3" />
-                  </button>
+                  </span>
                 </span>
               ))
             ) : (
