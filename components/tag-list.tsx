@@ -18,7 +18,7 @@ export function TagList({ tags, onItemClick, onDelete }: TagListProps) {
   if (tags.length === 0) {
     return (
       <div className="py-8 text-center text-sm text-muted-foreground">
-        Nenhuma tag encontrada.
+        No tags found.
       </div>
     );
   }

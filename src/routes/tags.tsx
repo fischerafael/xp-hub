@@ -66,7 +66,7 @@ export function TagsPage() {
         <main className="py-6">
           <div className="mb-6">
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-semibold">
+              <h1 className="text-lg font-semibold">
                 Tags ({categories.length})
               </h1>
               <Button onClick={handleAddCategory}>Add</Button>
