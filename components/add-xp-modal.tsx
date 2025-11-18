@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Combobox } from "@/components/ui/combobox";
 import { addXp, editXp } from "@/src/services/xp-service";
+import { getCategoriesByOwnerId } from "@/src/services/category-service";
 import type { XP } from "@/components/xp-list";
 
 interface AddXPModalProps {
@@ -72,19 +74,19 @@ export function AddXPModal({
     }
   }, [open, editItemId, onLoadItem]);
 
-  // Mock tag options
-  const tagOptions = [
-    { value: "react", label: "React" },
-    { value: "javascript", label: "JavaScript" },
-    { value: "typescript", label: "TypeScript" },
-    { value: "nextjs", label: "Next.js" },
-    { value: "hooks", label: "Hooks" },
-    { value: "css", label: "CSS" },
-    { value: "html", label: "HTML" },
-    { value: "nodejs", label: "Node.js" },
-    { value: "python", label: "Python" },
-    { value: "git", label: "Git" },
-  ];
+  // Fetch categories from service
+  const { data: categories = [] } = useQuery({
+    queryKey: ["categories", ownerId],
+    queryFn: () => getCategoriesByOwnerId(ownerId),
+  });
+
+  // Transform categories to tagOptions format
+  const tagOptions = useMemo(() => {
+    return categories.map((category) => ({
+      value: category.title,
+      label: category.title,
+    }));
+  }, [categories]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -42,12 +42,12 @@ export function FilterMenu({
           "z-50 w-80 rounded-md border bg-popover p-4 text-popover-foreground shadow-md",
           "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
         )}
-        align="end"
+        align="start"
       >
         <div className="space-y-4">
           <div>
             <label className="text-sm font-medium mb-2 block">
-              Filtrar por título
+              Filter by title
             </label>
             <Input
               type="text"
@@ -59,7 +59,7 @@ export function FilterMenu({
           </div>
           <div>
             <label className="text-sm font-medium mb-2 block">
-              Filtrar por categoria
+              Filter by category
             </label>
             <div className="max-h-[300px] overflow-auto space-y-1">
               {categories.map((category) => {

@@ -126,18 +126,18 @@ export function AppPage() {
         <main className="py-6">
           <div className="mb-6">
             <div className="flex items-center justify-between gap-4">
+              <FilterMenu
+                titleFilter={titleFilter}
+                onTitleFilterChange={setTitleFilter}
+                selectedCategoryTitles={selectedCategoryTitles}
+                onCategoryToggle={handleCategoryToggle}
+                categories={categories}
+              />
               <DateSelector
                 selectedDate={selectedDate}
                 onDateChange={setSelectedDate}
               />
               <div className="flex items-center gap-2">
-                <FilterMenu
-                  titleFilter={titleFilter}
-                  onTitleFilterChange={setTitleFilter}
-                  selectedCategoryTitles={selectedCategoryTitles}
-                  onCategoryToggle={handleCategoryToggle}
-                  categories={categories}
-                />
                 <Button onClick={handleAddXP}>Add XP</Button>
               </div>
             </div>
