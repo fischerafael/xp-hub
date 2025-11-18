@@ -49,7 +49,7 @@ export function XPList({ xps, onDelete, onItemClick }: XPListProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div>
       {xps.map((xp) => (
         <Card
           key={xp.id}

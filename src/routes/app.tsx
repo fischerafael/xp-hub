@@ -191,7 +191,7 @@ export function AppPage() {
                 onItemClick={handleItemClick}
               />
               {filteredXPs.length > 0 && (
-                <div className="mt-6 flex items-center justify-between border-t pt-4">
+                <div className="mt-0 flex items-center justify-between border-t pt-4">
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span>
                       {filteredXPs.length} XP

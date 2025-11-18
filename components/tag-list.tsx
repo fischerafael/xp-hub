@@ -24,7 +24,7 @@ export function TagList({ tags, onItemClick, onDelete }: TagListProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div>
       {tags.map((tag) => (
         <Card
           key={tag.id}
@@ -37,6 +37,13 @@ export function TagList({ tags, onItemClick, onDelete }: TagListProps) {
         >
           <CardHeader>
             <div className="flex items-start justify-between gap-4">
+              {tag.color && (
+                <div
+                  className="h-8 w-8 rounded-md border border-border"
+                  style={{ backgroundColor: tag.color }}
+                  aria-label={`Cor da tag ${tag.title}`}
+                />
+              )}
               <div className="flex-1">
                 <CardTitle>{tag.title}</CardTitle>
                 {tag.description && (
@@ -45,31 +52,22 @@ export function TagList({ tags, onItemClick, onDelete }: TagListProps) {
                   </CardDescription>
                 )}
               </div>
-              {tag.color && (
-                <div
-                  className="h-8 w-8 rounded-md border border-border"
-                  style={{ backgroundColor: tag.color }}
-                  aria-label={`Cor da tag ${tag.title}`}
-                />
+              {onDelete && (
+                <div className="flex items-center justify-end">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(tag.id);
+                    }}
+                    className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                    aria-label="Remover tag"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
               )}
             </div>
           </CardHeader>
-          {onDelete && (
-            <CardContent>
-              <div className="flex items-center justify-end">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(tag.id);
-                  }}
-                  className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                  aria-label="Remover tag"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
-            </CardContent>
-          )}
         </Card>
       ))}
     </div>

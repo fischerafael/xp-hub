@@ -21,7 +21,7 @@ export function Header() {
   };
 
   return (
-    <header className="flex items-center justify-between border-b py-4">
+    <header className="flex items-center justify-between py-4">
       <div className="flex items-center gap-4">
         {/* <div className="text-lg font-semibold">xphub</div> */}
         <Popover open={menuOpen} onOpenChange={setMenuOpen}>
