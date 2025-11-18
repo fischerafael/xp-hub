@@ -20,9 +20,10 @@ export interface XP {
 interface XPListProps {
   xps: XP[];
   onDelete?: (id: string) => void;
+  onItemClick?: (id: string) => void;
 }
 
-export function XPList({ xps, onDelete }: XPListProps) {
+export function XPList({ xps, onDelete, onItemClick }: XPListProps) {
   const formatTime = (timeString: string) => {
     const date = new Date(timeString);
     return date.toLocaleTimeString("pt-BR", {
@@ -50,7 +51,15 @@ export function XPList({ xps, onDelete }: XPListProps) {
   return (
     <div className="space-y-4">
       {xps.map((xp) => (
-        <Card key={xp.id} className="relative">
+        <Card
+          key={xp.id}
+          className={`relative ${
+            onItemClick
+              ? "cursor-pointer transition-colors hover:bg-accent"
+              : ""
+          }`}
+          onClick={() => onItemClick?.(xp.id)}
+        >
           <CardHeader>
             <div className="flex items-start justify-between">
               <div className="flex-1">
@@ -83,7 +92,10 @@ export function XPList({ xps, onDelete }: XPListProps) {
               )}
               {onDelete && (
                 <button
-                  onClick={() => onDelete(xp.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(xp.id);
+                  }}
                   className="bottom-4 right-4 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                   aria-label="Remover XP"
                 >

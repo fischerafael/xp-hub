@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Combobox } from "@/components/ui/combobox";
-import { addXp } from "@/src/services/xp-service";
+import { addXp, editXp } from "@/src/services/xp-service";
 import type { XP } from "@/components/xp-list";
 
 interface AddXPModalProps {
@@ -21,6 +21,8 @@ interface AddXPModalProps {
   onOpenChange: (open: boolean) => void;
   ownerId: string;
   onSuccess?: () => void;
+  editItemId?: string;
+  onLoadItem?: (id: string) => Promise<XP | null>;
 }
 
 export function AddXPModal({
@@ -28,13 +30,47 @@ export function AddXPModal({
   onOpenChange,
   ownerId,
   onSuccess,
+  editItemId,
+  onLoadItem,
 }: AddXPModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [duration, setDuration] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isEditing = !!editItemId;
+
+  // Load item data when editing
+  useEffect(() => {
+    if (open && editItemId && onLoadItem) {
+      setIsLoading(true);
+      onLoadItem(editItemId)
+        .then((item) => {
+          if (item) {
+            setTitle(item.title);
+            setDescription(item.description || "");
+            setTags(item.tags || []);
+            setDuration(item.duration ? (item.duration / 60).toString() : "");
+          }
+        })
+        .catch((err) => {
+          console.error("Error loading item:", err);
+          setError("Error loading item data");
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    } else if (open && !editItemId) {
+      // Clear form when opening for new item
+      setTitle("");
+      setDescription("");
+      setTags([]);
+      setDuration("");
+      setError(null);
+    }
+  }, [open, editItemId, onLoadItem]);
 
   // Mock tag options
   const tagOptions = [
@@ -87,7 +123,11 @@ export function AddXPModal({
         ownerId,
       };
 
-      await addXp(xpData);
+      if (isEditing && editItemId) {
+        await editXp(editItemId, xpData);
+      } else {
+        await addXp(xpData);
+      }
 
       // Clear form
       setTitle("");
@@ -100,15 +140,19 @@ export function AddXPModal({
       onOpenChange(false);
       onSuccess?.();
     } catch (err) {
-      setError("Error creating XP. Please try again.");
-      console.error("Error adding XP:", err);
+      setError(
+        isEditing
+          ? "Error updating XP. Please try again."
+          : "Error creating XP. Please try again."
+      );
+      console.error(isEditing ? "Error editing XP:" : "Error adding XP:", err);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleOpenChange = (newOpen: boolean) => {
-    if (!isSubmitting) {
+    if (!isSubmitting && !isLoading) {
       onOpenChange(newOpen);
       if (!newOpen) {
         // Clear form on close
@@ -125,71 +169,79 @@ export function AddXPModal({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Add XP</DialogTitle>
+          <DialogTitle>{isEditing ? "Edit XP" : "Add XP"}</DialogTitle>
           <DialogDescription>
             Fill in the experience data. The title is required.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="title">
-                Title <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Ex: Learned React Hooks"
-                required
-                disabled={isSubmitting}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe your experience..."
-                className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                disabled={isSubmitting}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="tags">Tags</Label>
-              <Combobox
-                options={tagOptions}
-                value={tags}
-                onChange={setTags}
-                placeholder="Select tags..."
-                disabled={isSubmitting}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="duration">Duration (hours)</Label>
-              <Input
-                id="duration"
-                type="number"
-                step="0.25"
-                min="0.25"
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-                placeholder="Ex: 0.25 (15 min), 0.5 (30 min), 1.0 (60 min)"
-                disabled={isSubmitting}
-              />
-              <p className="text-xs text-muted-foreground">
-                Multiples of 0.25 (0.25 = 15 minutes)
-              </p>
-            </div>
-
-            {error && (
-              <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-                {error}
+            {isLoading ? (
+              <div className="py-8 text-center text-sm text-muted-foreground">
+                Loading...
               </div>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="title">
+                    Title <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Ex: Learned React Hooks"
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <textarea
+                    id="description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Describe your experience..."
+                    className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled={isSubmitting}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="tags">Tags</Label>
+                  <Combobox
+                    options={tagOptions}
+                    value={tags}
+                    onChange={setTags}
+                    placeholder="Select tags..."
+                    disabled={isSubmitting}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="duration">Duration (hours)</Label>
+                  <Input
+                    id="duration"
+                    type="number"
+                    step="0.25"
+                    min="0.25"
+                    value={duration}
+                    onChange={(e) => setDuration(e.target.value)}
+                    placeholder="Ex: 0.25 (15 min), 0.5 (30 min), 1.0 (60 min)"
+                    disabled={isSubmitting}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Multiples of 0.25 (0.25 = 15 minutes)
+                  </p>
+                </div>
+
+                {error && (
+                  <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+                    {error}
+                  </div>
+                )}
+              </>
             )}
           </div>
 
@@ -198,12 +250,18 @@ export function AddXPModal({
               type="button"
               variant="outline"
               onClick={() => handleOpenChange(false)}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isLoading}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Creating..." : "Create XP"}
+            <Button type="submit" disabled={isSubmitting || isLoading}>
+              {isSubmitting
+                ? isEditing
+                  ? "Updating..."
+                  : "Creating..."
+                : isEditing
+                ? "Update XP"
+                : "Create XP"}
             </Button>
           </DialogFooter>
         </form>

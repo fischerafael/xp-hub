@@ -7,7 +7,11 @@ import { Header } from "@/components/header";
 import { XPList } from "@/components/xp-list";
 import { AddXPModal } from "@/components/add-xp-modal";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getXpByOwnerId, removeXp } from "@/src/services/xp-service";
+import {
+  getXpByOwnerId,
+  removeXp,
+  getItemById,
+} from "@/src/services/xp-service";
 import { useState, useMemo } from "react";
 
 const OWNER_ID = "user-1"; // TODO: Substituir por autenticação real
@@ -15,6 +19,7 @@ const OWNER_ID = "user-1"; // TODO: Substituir por autenticação real
 export function AppPage() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const { data: allXPs = [], isLoading } = useQuery({
@@ -36,7 +41,20 @@ export function AppPage() {
   }, [allXPs, selectedDate]);
 
   const handleAddXP = () => {
+    setEditingItemId(null);
     setIsModalOpen(true);
+  };
+
+  const handleItemClick = (id: string) => {
+    setEditingItemId(id);
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = (open: boolean) => {
+    setIsModalOpen(open);
+    if (!open) {
+      setEditingItemId(null);
+    }
   };
 
   const handleXPAdded = () => {
@@ -71,16 +89,22 @@ export function AppPage() {
               Carregando...
             </div>
           ) : (
-            <XPList xps={filteredXPs} onDelete={handleXPDeleted} />
+            <XPList
+              xps={filteredXPs}
+              onDelete={handleXPDeleted}
+              onItemClick={handleItemClick}
+            />
           )}
         </main>
       </div>
       <Footer />
       <AddXPModal
         open={isModalOpen}
-        onOpenChange={setIsModalOpen}
+        onOpenChange={handleModalClose}
         ownerId={OWNER_ID}
         onSuccess={handleXPAdded}
+        editItemId={editingItemId || undefined}
+        onLoadItem={getItemById}
       />
     </div>
   );
