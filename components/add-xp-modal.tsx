@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Combobox } from "@/components/ui/combobox";
 import { addXp } from "@/src/services/xp-service";
 import type { XP } from "@/components/xp-list";
 
@@ -30,54 +31,75 @@ export function AddXPModal({
 }: AddXPModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [tags, setTags] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
   const [duration, setDuration] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Mock tag options
+  const tagOptions = [
+    { value: "react", label: "React" },
+    { value: "javascript", label: "JavaScript" },
+    { value: "typescript", label: "TypeScript" },
+    { value: "nextjs", label: "Next.js" },
+    { value: "hooks", label: "Hooks" },
+    { value: "css", label: "CSS" },
+    { value: "html", label: "HTML" },
+    { value: "nodejs", label: "Node.js" },
+    { value: "python", label: "Python" },
+    { value: "git", label: "Git" },
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    // Validação básica
+    // Basic validation
     if (!title.trim()) {
-      setError("O título é obrigatório");
+      setError("Title is required");
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      // Converter tags de string (vírgula) para array
-      const tagsArray = tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter((tag) => tag.length > 0);
+      // Convert duration from hours (0.25 = 15 min) to minutes
+      let durationMinutes: number | undefined;
+      if (duration) {
+        const durationHours = parseFloat(duration);
+        // Validate it's a multiple of 0.25 (multiply by 4 and check if it's an integer)
+        if (Math.abs(Math.round(durationHours * 4) - durationHours * 4) > 0.001) {
+          setError("Duration must be a multiple of 0.25 (15 minutes)");
+          setIsSubmitting(false);
+          return;
+        }
+        durationMinutes = Math.round(durationHours * 60);
+      }
 
-      // Preparar dados da XP (sem id e createdAt)
+      // Prepare XP data (without id and createdAt)
       const xpData: Omit<XP, "id" | "createdAt"> = {
         title: title.trim(),
         description: description.trim() || undefined,
-        tags: tagsArray,
-        duration: duration ? parseInt(duration, 10) : undefined,
+        tags: tags,
+        duration: durationMinutes,
         ownerId,
       };
 
       await addXp(xpData);
 
-      // Limpar formulário
+      // Clear form
       setTitle("");
       setDescription("");
-      setTags("");
+      setTags([]);
       setDuration("");
       setError(null);
 
-      // Fechar modal e chamar callback de sucesso
+      // Close modal and call success callback
       onOpenChange(false);
       onSuccess?.();
     } catch (err) {
-      setError("Erro ao criar XP. Tente novamente.");
-      console.error("Erro ao adicionar XP:", err);
+      setError("Error creating XP. Please try again.");
+      console.error("Error adding XP:", err);
     } finally {
       setIsSubmitting(false);
     }
@@ -87,10 +109,10 @@ export function AddXPModal({
     if (!isSubmitting) {
       onOpenChange(newOpen);
       if (!newOpen) {
-        // Limpar formulário ao fechar
+        // Clear form on close
         setTitle("");
         setDescription("");
-        setTags("");
+        setTags([]);
         setDuration("");
         setError(null);
       }
@@ -101,34 +123,34 @@ export function AddXPModal({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Adicionar XP</DialogTitle>
+          <DialogTitle>Add XP</DialogTitle>
           <DialogDescription>
-            Preencha os dados da experiência. O título é obrigatório.
+            Fill in the experience data. The title is required.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="title">
-                Título <span className="text-destructive">*</span>
+                Title <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Ex: Aprendi React Hooks"
+                placeholder="Ex: Learned React Hooks"
                 required
                 disabled={isSubmitting}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Descrição</Label>
+              <Label htmlFor="description">Description</Label>
               <textarea
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Descreva sua experiência..."
+                placeholder="Describe your experience..."
                 className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={isSubmitting}
               />
@@ -136,29 +158,30 @@ export function AddXPModal({
 
             <div className="space-y-2">
               <Label htmlFor="tags">Tags</Label>
-              <Input
-                id="tags"
+              <Combobox
+                options={tagOptions}
                 value={tags}
-                onChange={(e) => setTags(e.target.value)}
-                placeholder="Ex: react, hooks, javascript (separadas por vírgula)"
+                onChange={setTags}
+                placeholder="Select tags..."
                 disabled={isSubmitting}
               />
-              <p className="text-xs text-muted-foreground">
-                Separe as tags por vírgula
-              </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="duration">Duração (minutos)</Label>
+              <Label htmlFor="duration">Duration (hours)</Label>
               <Input
                 id="duration"
                 type="number"
-                min="1"
+                step="0.25"
+                min="0.25"
                 value={duration}
                 onChange={(e) => setDuration(e.target.value)}
-                placeholder="Ex: 30"
+                placeholder="Ex: 0.25 (15 min), 0.5 (30 min), 1.0 (60 min)"
                 disabled={isSubmitting}
               />
+              <p className="text-xs text-muted-foreground">
+                Multiples of 0.25 (0.25 = 15 minutes)
+              </p>
             </div>
 
             {error && (
@@ -175,10 +198,10 @@ export function AddXPModal({
               onClick={() => handleOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancelar
+              Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Criando..." : "Criar XP"}
+              {isSubmitting ? "Creating..." : "Create XP"}
             </Button>
           </DialogFooter>
         </form>
