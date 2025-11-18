@@ -46,7 +46,7 @@ export function AppPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen justify-between flex-col">
       <div className="mx-auto w-full max-w-4xl px-4">
         <Header />
         <main className="py-6">
@@ -56,9 +56,8 @@ export function AppPage() {
           </div>
           <XPList xps={mockXPs} />
         </main>
-        <Footer />
       </div>
+      <Footer />
     </div>
   );
 }
-
