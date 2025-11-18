@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,18 +15,16 @@ export default function Home() {
       <section className="container mx-auto px-4 py-20 md:py-32">
         <div className="mx-auto max-w-4xl text-center">
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-            Bem-vindo ao <span className="text-primary">Exp Hub</span>
+            Welcome to <span className="text-primary">XP Hub</span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl">
-            Uma plataforma moderna e poderosa para transformar suas ideias em
-            realidade. Construído com Next.js, Tailwind CSS e shadcn/ui.
+            Track, register, and organize your daily experiences with ease.
+            Create XP entries with title, duration, date, and custom tags to
+            keep everything organized.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Button size="lg" className="w-full sm:w-auto">
-              Começar Agora
-            </Button>
-            <Button size="lg" variant="outline" className="w-full sm:w-auto">
-              Saiba Mais
+            <Button size="lg" className="w-full sm:w-auto" asChild>
+              <Link href="/app">Start Now</Link>
             </Button>
           </div>
         </div>
@@ -33,123 +32,106 @@ export default function Home() {
 
       {/* Features Section */}
       <section className="container mx-auto px-4 py-20">
-        <div className="mx-auto max-w-6xl">
+        <div className="mx-auto max-w-4xl">
           <div className="text-center">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Recursos Principais
+              Key Features
             </h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              Tudo que você precisa para criar aplicações incríveis
+              Everything you need to track and organize your experiences
             </p>
           </div>
           <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             <Card>
               <CardHeader>
-                <CardTitle>⚡ Performance</CardTitle>
+                <CardTitle>📝 Experience Tracking</CardTitle>
                 <CardDescription>
-                  Construído com Next.js para máxima performance e otimização
+                  Track your XP entries with title, duration, date, and tags
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Aproveite o poder do React Server Components e otimizações
-                  automáticas para criar aplicações rápidas e eficientes.
+                  Easily record and manage your experiences with detailed
+                  information to keep track of everything you do.
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>🎨 Design Moderno</CardTitle>
+                <CardTitle>📅 Date Filtering</CardTitle>
                 <CardDescription>
-                  Interface bonita e responsiva com Tailwind CSS e shadcn/ui
+                  Filter your experiences by specific dates
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Componentes acessíveis e customizáveis que seguem as melhores
-                  práticas de design e UX.
+                  Quickly find experiences from any date using the intuitive
+                  date selector to navigate through your history.
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>🔧 Fácil de Usar</CardTitle>
+                <CardTitle>🏷️ Category Management</CardTitle>
                 <CardDescription>
-                  Configuração simples e desenvolvimento ágil
+                  Organize your experiences with tags and categories
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Comece a desenvolver rapidamente com uma stack moderna e
-                  ferramentas prontas para uso.
+                  Create and manage custom categories to organize your
+                  experiences and filter by tags for better organization.
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>📱 Responsivo</CardTitle>
+                <CardTitle>⏱️ Duration Tracking</CardTitle>
                 <CardDescription>
-                  Funciona perfeitamente em todos os dispositivos
+                  Track time spent on each experience
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Design adaptativo que garante uma experiência perfeita em
-                  desktop, tablet e mobile.
+                  Record how long you spend on each activity and view total
+                  duration for filtered experiences.
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>🌙 Modo Escuro</CardTitle>
+                <CardTitle>⚡ Quick Actions</CardTitle>
                 <CardDescription>
-                  Suporte nativo para tema claro e escuro
+                  Copy, edit, and delete experiences with ease
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Interface que se adapta automaticamente às preferências do
-                  usuário com suporte completo a dark mode.
+                  Quickly copy titles to clipboard, edit entries, or remove
+                  experiences you no longer need.
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>🚀 TypeScript</CardTitle>
-                <CardDescription>Type-safe desde o início</CardDescription>
+                <CardTitle>📊 Organized View</CardTitle>
+                <CardDescription>
+                  Clean and organized experience list
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Desenvolvimento mais seguro e produtivo com TypeScript
-                  configurado e pronto para uso.
+                  View all your experiences in a clean, organized list sorted by
+                  date with powerful filtering options.
                 </p>
               </CardContent>
             </Card>
           </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="container mx-auto px-4 py-20">
-        <div className="mx-auto max-w-4xl">
-          <Card className="border-primary/20 bg-primary/5">
-            <CardHeader className="text-center">
-              <CardTitle className="text-3xl">Pronto para começar?</CardTitle>
-              <CardDescription className="text-base">
-                Junte-se a nós e comece a construir algo incrível hoje mesmo.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex justify-center">
-              <Button size="lg" className="mt-4">
-                Começar Agora
-              </Button>
-            </CardContent>
-          </Card>
         </div>
       </section>
     </div>
