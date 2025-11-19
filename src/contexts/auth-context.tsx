@@ -9,10 +9,15 @@ import {
 } from "react";
 import type { User } from "@/src/services/user-service";
 import { getUserByEmail, createUser } from "@/src/services/user-service";
+import {
+  signInWithGooglePopup,
+  signOutFromFirebase,
+} from "@/src/infra/firebase/auth";
 
 interface AuthContextType {
   user: User | null;
   signIn: (email: string, name: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signOut: () => void;
   isLoading: boolean;
 }
@@ -45,22 +50,54 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const signIn = async (email: string, name: string) => {
-    try {
-      // Buscar usuário existente
-      let userData = await getUserByEmail(email);
-
-      // Se não existir, criar novo usuário
-      if (!userData) {
-        userData = await createUser(email, name);
-      }
-
-      // Salvar no estado e localStorage
-      setUser(userData);
+  const persistUser = (userData: User) => {
+    setUser(userData);
+    if (typeof window !== "undefined") {
       localStorage.setItem(CURRENT_USER_STORAGE_KEY, JSON.stringify(userData));
+    }
+  };
+
+  const upsertUserByEmail = async (email: string, name: string) => {
+    let userData = await getUserByEmail(email);
+    if (!userData) {
+      userData = await createUser(email, name);
+    }
+    return userData;
+  };
+
+  const signIn = async (email: string, name: string) => {
+    setIsLoading(true);
+    try {
+      const userData = await upsertUserByEmail(email, name);
+      persistUser(userData);
     } catch (error) {
       console.error("Erro ao fazer sign in:", error);
       throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    setIsLoading(true);
+    try {
+      const googleProfile = await signInWithGooglePopup();
+      if (!googleProfile.email) {
+        throw new Error("Conta Google sem email disponível");
+      }
+
+      const fallbackName =
+        googleProfile.name || googleProfile.email.split("@")[0] || "Usuário";
+      const userData = await upsertUserByEmail(
+        googleProfile.email,
+        fallbackName
+      );
+      persistUser(userData);
+    } catch (error) {
+      console.error("Erro ao autenticar com Google:", error);
+      throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -69,10 +106,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (typeof window !== "undefined") {
       localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
     }
+    signOutFromFirebase().catch((error) => {
+      console.error("Erro ao deslogar do Firebase:", error);
+    });
   };
 
   return (
-    <AuthContext.Provider value={{ user, signIn, signOut, isLoading }}>
+    <AuthContext.Provider
+      value={{ user, signIn, signInWithGoogle, signOut, isLoading }}
+    >
       {children}
     </AuthContext.Provider>
   );
