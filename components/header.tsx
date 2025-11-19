@@ -2,22 +2,37 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Menu, LogOut } from "lucide-react";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/src/contexts/auth-context";
 
 const Popover = PopoverPrimitive.Root;
 const PopoverTrigger = PopoverPrimitive.Trigger;
 const PopoverContent = PopoverPrimitive.Content;
 
 export function Header() {
-  const userEmail = "usuario@exemplo.com";
+  const router = useRouter();
+  const { user, signOut, isLoading } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const displayName = isLoading
+    ? "Carregando..."
+    : user?.name || user?.email || "Usuário não autenticado";
+
   const handleLogout = () => {
-    // TODO: Implementar logout
-    console.log("Logout clicked");
+    if (!user) {
+      router.push("/");
+      return;
+    }
+
+    try {
+      signOut();
+    } finally {
+      router.push("/");
+    }
   };
 
   return (
@@ -53,9 +68,15 @@ export function Header() {
             </Link>
           </PopoverContent>
         </Popover>
-        <span className="text-sm text-muted-foreground">{userEmail}</span>
+        <span className="text-sm text-muted-foreground">{displayName}</span>
       </div>
-      <Button variant="outline" size="icon" onClick={handleLogout}>
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={handleLogout}
+        disabled={isLoading}
+        aria-label="Log out"
+      >
         <LogOut className="h-4 w-4" />
       </Button>
     </header>
