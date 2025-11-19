@@ -14,12 +14,14 @@ import {
   getItemById,
 } from "@/src/services/xp-service";
 import { getCategoriesByOwnerId } from "@/src/services/category-service";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Copy } from "lucide-react";
-
-const OWNER_ID = "user-1"; // TODO: Substituir por autenticação real
+import { useAuth } from "@/src/contexts/auth-context";
+import { useRouter } from "next/navigation";
 
 export function AppPage() {
+  const router = useRouter();
+  const { user, isLoading: authLoading } = useAuth();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
@@ -29,14 +31,25 @@ export function AppPage() {
   >([]);
   const queryClient = useQueryClient();
 
+  // Redirecionar para home se não houver usuário logado
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/");
+    }
+  }, [user, authLoading, router]);
+
+  const ownerId = user?.email || "";
+
   const { data: allXPs = [], isLoading } = useQuery({
-    queryKey: ["xps", OWNER_ID],
-    queryFn: () => getXpByOwnerId(OWNER_ID),
+    queryKey: ["xps", ownerId],
+    queryFn: () => getXpByOwnerId(ownerId),
+    enabled: !!ownerId,
   });
 
   const { data: categories = [] } = useQuery({
-    queryKey: ["categories", OWNER_ID],
-    queryFn: () => getCategoriesByOwnerId(OWNER_ID),
+    queryKey: ["categories", ownerId],
+    queryFn: () => getCategoriesByOwnerId(ownerId),
+    enabled: !!ownerId,
   });
 
   // Filtrar XPs pela data selecionada, título e categorias
@@ -98,14 +111,14 @@ export function AppPage() {
 
   const handleXPAdded = () => {
     // Invalidar a query para atualizar a lista
-    queryClient.invalidateQueries({ queryKey: ["xps", OWNER_ID] });
+    queryClient.invalidateQueries({ queryKey: ["xps", ownerId] });
   };
 
   const handleXPDeleted = async (id: string) => {
     try {
       await removeXp(id);
       // Invalidar a query para atualizar a lista
-      queryClient.invalidateQueries({ queryKey: ["xps", OWNER_ID] });
+      queryClient.invalidateQueries({ queryKey: ["xps", ownerId] });
     } catch (error) {
       console.error("Erro ao remover XP:", error);
     }
@@ -179,9 +192,13 @@ export function AppPage() {
               categories={categories}
             />
           </div>
-          {isLoading ? (
+          {authLoading || isLoading ? (
             <div className="py-8 text-center text-sm text-muted-foreground">
               Loading...
+            </div>
+          ) : !user ? (
+            <div className="py-8 text-center text-sm text-muted-foreground">
+              Redirecionando...
             </div>
           ) : (
             <>
@@ -221,7 +238,7 @@ export function AppPage() {
       <AddXPModal
         open={isModalOpen}
         onOpenChange={handleModalClose}
-        ownerId={OWNER_ID}
+        ownerId={ownerId}
         onSuccess={handleXPAdded}
         editItemId={editingItemId || undefined}
         onLoadItem={getItemById}

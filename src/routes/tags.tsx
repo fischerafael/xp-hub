@@ -11,20 +11,32 @@ import {
   removeCategory,
   getCategoryById,
 } from "@/src/services/category-service";
-import { useState } from "react";
-
-const OWNER_ID = "user-1"; // TODO: Substituir por autenticação real
+import { useState, useEffect } from "react";
+import { useAuth } from "@/src/contexts/auth-context";
+import { useRouter } from "next/navigation";
 
 export function TagsPage() {
+  const router = useRouter();
+  const { user, isLoading: authLoading } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(
     null
   );
   const queryClient = useQueryClient();
 
+  // Redirecionar para home se não houver usuário logado
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/");
+    }
+  }, [user, authLoading, router]);
+
+  const ownerId = user?.email || "";
+
   const { data: categories = [], isLoading } = useQuery({
-    queryKey: ["categories", OWNER_ID],
-    queryFn: () => getCategoriesByOwnerId(OWNER_ID),
+    queryKey: ["categories", ownerId],
+    queryFn: () => getCategoriesByOwnerId(ownerId),
+    enabled: !!ownerId,
   });
 
   const handleAddCategory = () => {
@@ -46,14 +58,14 @@ export function TagsPage() {
 
   const handleCategoryAdded = () => {
     // Invalidar a query para atualizar a lista
-    queryClient.invalidateQueries({ queryKey: ["categories", OWNER_ID] });
+    queryClient.invalidateQueries({ queryKey: ["categories", ownerId] });
   };
 
   const handleCategoryDeleted = async (id: string) => {
     try {
       await removeCategory(id);
       // Invalidar a query para atualizar a lista
-      queryClient.invalidateQueries({ queryKey: ["categories", OWNER_ID] });
+      queryClient.invalidateQueries({ queryKey: ["categories", ownerId] });
     } catch (error) {
       console.error("Erro ao remover categoria:", error);
     }
@@ -72,9 +84,13 @@ export function TagsPage() {
               <Button onClick={handleAddCategory}>Add</Button>
             </div>
           </div>
-          {isLoading ? (
+          {authLoading || isLoading ? (
             <div className="py-8 text-center text-sm text-muted-foreground">
               Loading...
+            </div>
+          ) : !user ? (
+            <div className="py-8 text-center text-sm text-muted-foreground">
+              Redirecionando...
             </div>
           ) : (
             <TagList
@@ -89,7 +105,7 @@ export function TagsPage() {
       <AddCategoryModal
         open={isModalOpen}
         onOpenChange={handleModalClose}
-        ownerId={OWNER_ID}
+        ownerId={ownerId}
         onSuccess={handleCategoryAdded}
         editCategoryId={editingCategoryId || undefined}
         onLoadCategory={getCategoryById}

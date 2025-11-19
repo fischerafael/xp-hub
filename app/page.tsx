@@ -1,4 +1,6 @@
-import Link from "next/link";
+"use client";
+
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -7,8 +9,24 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useAuth } from "@/src/contexts/auth-context";
 
 export default function Home() {
+  const router = useRouter();
+  const { signIn } = useAuth();
+
+  const handleStartNow = async () => {
+    try {
+      // Dados mock - serão substituídos por dados do Google no futuro
+      const mockEmail = "user@example.com";
+      const mockName = "Test User";
+
+      await signIn(mockEmail, mockName);
+      router.push("/app");
+    } catch (error) {
+      console.error("Erro ao fazer sign in:", error);
+    }
+  };
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
@@ -23,8 +41,12 @@ export default function Home() {
             keep everything organized.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Button size="lg" className="w-full sm:w-auto" asChild>
-              <Link href="/app">Start Now</Link>
+            <Button
+              size="lg"
+              className="w-full sm:w-auto"
+              onClick={handleStartNow}
+            >
+              Start Now
             </Button>
           </div>
         </div>
