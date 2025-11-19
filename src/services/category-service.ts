@@ -1,3 +1,5 @@
+import { categoryRepository } from "@/src/infra/repositories/category.repository";
+
 export interface Category {
   id: string;
   title: string;
@@ -5,8 +7,6 @@ export interface Category {
   color?: string;
   ownerId: string;
 }
-
-const STORAGE_KEY = "categories";
 
 const OWNER_ID = "user-1"; // TODO: Substituir por autenticação real
 
@@ -87,27 +87,27 @@ const initialCategories: Category[] = [
 ];
 
 /**
+ * Inicializa as categorias padrão se ainda não existirem dados
+ */
+async function initializeCategoriesIfNeeded(): Promise<void> {
+  const allCategories = await categoryRepository.getAll();
+  if (allCategories.length === 0) {
+    // Se não há categorias, inicializa com as categorias padrão
+    for (const category of initialCategories) {
+      await categoryRepository.create(category);
+    }
+  }
+}
+
+/**
  * Busca todas as categorias de um owner específico
  */
 export async function getCategoriesByOwnerId(
   ownerId: string
 ): Promise<Category[]> {
   try {
-    if (typeof window === "undefined") {
-      return [];
-    }
-
-    const stored = localStorage.getItem(STORAGE_KEY);
-    let allCategories: Category[];
-
-    if (!stored) {
-      // Se não há dados no localStorage, inicializa com as categorias padrão
-      allCategories = initialCategories;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(allCategories));
-    } else {
-      allCategories = JSON.parse(stored);
-    }
-
+    await initializeCategoriesIfNeeded();
+    const allCategories = await categoryRepository.getAll();
     return allCategories.filter((cat) => cat.ownerId === ownerId);
   } catch (error) {
     console.error("Erro ao buscar categorias:", error);
@@ -120,18 +120,7 @@ export async function getCategoriesByOwnerId(
  */
 export async function getCategoryById(id: string): Promise<Category | null> {
   try {
-    if (typeof window === "undefined") {
-      return null;
-    }
-
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) {
-      return null;
-    }
-
-    const allCategories: Category[] = JSON.parse(stored);
-    const category = allCategories.find((cat) => cat.id === id);
-    return category || null;
+    return await categoryRepository.getById(id);
   } catch (error) {
     console.error("Erro ao buscar categoria:", error);
     return null;
@@ -139,29 +128,14 @@ export async function getCategoryById(id: string): Promise<Category | null> {
 }
 
 /**
- * Adiciona uma nova categoria ao localStorage
+ * Adiciona uma nova categoria
  * Gera automaticamente id
  */
 export async function addCategory(
   category: Omit<Category, "id">
 ): Promise<Category> {
   try {
-    if (typeof window === "undefined") {
-      throw new Error("localStorage não está disponível");
-    }
-
-    const newCategory: Category = {
-      ...category,
-      id: crypto.randomUUID(),
-    };
-
-    const stored = localStorage.getItem(STORAGE_KEY);
-    const allCategories: Category[] = stored ? JSON.parse(stored) : [];
-
-    allCategories.push(newCategory);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(allCategories));
-
-    return newCategory;
+    return await categoryRepository.create(category);
   } catch (error) {
     console.error("Erro ao adicionar categoria:", error);
     throw error;
@@ -169,40 +143,14 @@ export async function addCategory(
 }
 
 /**
- * Atualiza uma categoria existente no localStorage
+ * Atualiza uma categoria existente
  */
 export async function editCategory(
   id: string,
   category: Partial<Omit<Category, "id">>
 ): Promise<Category> {
   try {
-    if (typeof window === "undefined") {
-      throw new Error("localStorage não está disponível");
-    }
-
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) {
-      throw new Error("Categoria não encontrada");
-    }
-
-    const allCategories: Category[] = JSON.parse(stored);
-    const index = allCategories.findIndex((cat) => cat.id === id);
-
-    if (index === -1) {
-      throw new Error("Categoria não encontrada");
-    }
-
-    // Preservar id, atualizar apenas os campos fornecidos
-    const updatedCategory: Category = {
-      ...allCategories[index],
-      ...category,
-      id: allCategories[index].id,
-    };
-
-    allCategories[index] = updatedCategory;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(allCategories));
-
-    return updatedCategory;
+    return await categoryRepository.update(id, category);
   } catch (error) {
     console.error("Erro ao editar categoria:", error);
     throw error;
@@ -210,22 +158,11 @@ export async function editCategory(
 }
 
 /**
- * Remove uma categoria do localStorage pelo id
+ * Remove uma categoria pelo id
  */
 export async function removeCategory(id: string): Promise<void> {
   try {
-    if (typeof window === "undefined") {
-      throw new Error("localStorage não está disponível");
-    }
-
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) {
-      return;
-    }
-
-    const allCategories: Category[] = JSON.parse(stored);
-    const filteredCategories = allCategories.filter((cat) => cat.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filteredCategories));
+    await categoryRepository.delete(id);
   } catch (error) {
     console.error("Erro ao remover categoria:", error);
     throw error;
