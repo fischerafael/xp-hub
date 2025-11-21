@@ -26,37 +26,7 @@ export async function getXpByOwnerIdWithFilters(
   }
 ): Promise<XP[]> {
   try {
-    // Carregar todos os XPs do owner
-    const allXPs = await xpRepository.findBy((xp) => xp.ownerId === ownerId);
-
-    // Aplicar filtros
-    let filtered = allXPs;
-
-    // Filtro por range de datas (se fornecido)
-    if (options?.startDate && options?.endDate) {
-      filtered = filtered.filter((xp) => {
-        const xpDate = new Date(xp.createdAt);
-        return xpDate >= options.startDate! && xpDate <= options.endDate!;
-      });
-    }
-
-    // Filtro por categorias (se fornecido)
-    if (options?.categoryTitles && options.categoryTitles.length > 0) {
-      filtered = filtered.filter((xp) => {
-        return options.categoryTitles!.some((catTitle) =>
-          xp.tags.includes(catTitle)
-        );
-      });
-    }
-
-    // Ordenar por createdAt (mais recente primeiro)
-    filtered.sort((a, b) => {
-      const dateA = new Date(a.createdAt).getTime();
-      const dateB = new Date(b.createdAt).getTime();
-      return dateB - dateA;
-    });
-
-    return filtered;
+    return await xpRepository.findByOwnerIdWithFilters(ownerId, options);
   } catch (error) {
     console.error("Erro ao buscar XPs com filtros:", error);
     return [];

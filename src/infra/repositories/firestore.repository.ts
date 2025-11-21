@@ -6,6 +6,8 @@ import {
   setDoc,
   updateDoc,
   deleteDoc,
+  query,
+  QueryConstraint,
 } from "firebase/firestore";
 import { firestore } from "@/src/infra/firebase/config";
 import type { Repository } from "./repository.interface";
@@ -222,6 +224,36 @@ export class FirestoreRepository<T extends { id: string }>
     } catch (error) {
       console.error(
         `Erro ao buscar itens com predicado em ${this.collectionName}:`,
+        error
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Busca itens usando queries do Firestore
+   * Permite construir queries complexas com where, orderBy, etc.
+   * @param queryConstraints Array de constraints do Firestore (where, orderBy, limit, etc.)
+   */
+  async findByQuery(...queryConstraints: QueryConstraint[]): Promise<T[]> {
+    try {
+      const collectionRef = this.getCollection();
+      const q = query(collectionRef, ...queryConstraints);
+      const querySnapshot = await getDocs(q);
+
+      const items: T[] = [];
+      querySnapshot.forEach((docSnapshot) => {
+        const data = docSnapshot.data();
+        items.push({
+          id: docSnapshot.id,
+          ...data,
+        } as T);
+      });
+
+      return items;
+    } catch (error) {
+      console.error(
+        `Erro ao buscar itens com query em ${this.collectionName}:`,
         error
       );
       throw error;
