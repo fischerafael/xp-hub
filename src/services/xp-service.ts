@@ -14,6 +14,60 @@ export async function getXpByOwnerId(ownerId: string): Promise<XP[]> {
 }
 
 /**
+ * Busca XPs de um owner específico com filtros opcionais de data e categorias
+ * Aplica ordenação por createdAt (mais recente primeiro)
+ */
+export async function getXpByOwnerIdWithFilters(
+  ownerId: string,
+  options?: {
+    date?: Date;
+    categoryTitles?: string[];
+  }
+): Promise<XP[]> {
+  try {
+    // Carregar todos os XPs do owner
+    const allXPs = await xpRepository.findBy((xp) => xp.ownerId === ownerId);
+
+    // Aplicar filtros
+    let filtered = allXPs;
+
+    // Filtro por data (se fornecido)
+    if (options?.date) {
+      const startOfDay = new Date(options.date);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(options.date);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      filtered = filtered.filter((xp) => {
+        const xpDate = new Date(xp.createdAt);
+        return xpDate >= startOfDay && xpDate <= endOfDay;
+      });
+    }
+
+    // Filtro por categorias (se fornecido)
+    if (options?.categoryTitles && options.categoryTitles.length > 0) {
+      filtered = filtered.filter((xp) => {
+        return options.categoryTitles!.some((catTitle) =>
+          xp.tags.includes(catTitle)
+        );
+      });
+    }
+
+    // Ordenar por createdAt (mais recente primeiro)
+    filtered.sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return dateB - dateA;
+    });
+
+    return filtered;
+  } catch (error) {
+    console.error("Erro ao buscar XPs com filtros:", error);
+    return [];
+  }
+}
+
+/**
  * Adiciona um novo XP
  * Gera automaticamente id e createdAt
  */

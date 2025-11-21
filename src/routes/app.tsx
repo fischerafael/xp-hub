@@ -9,7 +9,7 @@ import { AddXPModal } from "@/components/add-xp-modal";
 import { FilterMenu, SelectedCategories } from "@/components/filter-menu";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  getXpByOwnerId,
+  getXpByOwnerIdWithFilters,
   removeXp,
   getItemById,
 } from "@/src/services/xp-service";
@@ -40,9 +40,21 @@ export function AppPage() {
 
   const ownerId = user?.email || "";
 
-  const { data: allXPs = [], isLoading } = useQuery({
-    queryKey: ["xps", ownerId],
-    queryFn: () => getXpByOwnerId(ownerId),
+  const { data: filteredXPs = [], isLoading } = useQuery({
+    queryKey: [
+      "xps",
+      ownerId,
+      selectedDate.toISOString(),
+      [...selectedCategoryTitles].sort().join(","),
+    ],
+    queryFn: () =>
+      getXpByOwnerIdWithFilters(ownerId, {
+        date: selectedDate,
+        categoryTitles:
+          selectedCategoryTitles.length > 0
+            ? selectedCategoryTitles
+            : undefined,
+      }),
     enabled: !!ownerId,
   });
 
@@ -52,45 +64,19 @@ export function AppPage() {
     enabled: !!ownerId,
   });
 
-  // Filtrar XPs pela data selecionada, título e categorias
-  const filteredXPs = useMemo(() => {
-    const startOfDay = new Date(selectedDate);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(selectedDate);
-    endOfDay.setHours(23, 59, 59, 999);
+  // Filtrar XPs pelo título (filtro que permanece no frontend)
+  const titleFilteredXPs = useMemo(() => {
+    if (!titleFilter.trim()) {
+      return filteredXPs;
+    }
 
-    const filtered = allXPs.filter((xp) => {
-      // Filtro por data
-      const xpDate = new Date(xp.createdAt);
-      const isInDateRange = xpDate >= startOfDay && xpDate <= endOfDay;
-      if (!isInDateRange) return false;
-
-      // Filtro por título (case-insensitive substring)
-      if (titleFilter.trim()) {
-        const titleMatch = xp.title
-          .toLowerCase()
-          .includes(titleFilter.toLowerCase());
-        if (!titleMatch) return false;
-      }
-
-      // Filtro por categorias (tags)
-      if (selectedCategoryTitles.length > 0) {
-        const hasMatchingCategory = selectedCategoryTitles.some((catTitle) =>
-          xp.tags.includes(catTitle)
-        );
-        if (!hasMatchingCategory) return false;
-      }
-
-      return true;
+    return filteredXPs.filter((xp) => {
+      const titleMatch = xp.title
+        .toLowerCase()
+        .includes(titleFilter.toLowerCase());
+      return titleMatch;
     });
-
-    // Ordenar por createdAt (mais recente primeiro)
-    return filtered.sort((a, b) => {
-      const dateA = new Date(a.createdAt).getTime();
-      const dateB = new Date(b.createdAt).getTime();
-      return dateB - dateA;
-    });
-  }, [allXPs, selectedDate, titleFilter, selectedCategoryTitles]);
+  }, [filteredXPs, titleFilter]);
 
   const handleAddXP = () => {
     setEditingItemId(null);
@@ -110,15 +96,13 @@ export function AppPage() {
   };
 
   const handleXPAdded = () => {
-    // Invalidar a query para atualizar a lista
-    queryClient.invalidateQueries({ queryKey: ["xps", ownerId] });
+    queryClient.invalidateQueries({ queryKey: ["xps"] });
   };
 
   const handleXPDeleted = async (id: string) => {
     try {
       await removeXp(id);
-      // Invalidar a query para atualizar a lista
-      queryClient.invalidateQueries({ queryKey: ["xps", ownerId] });
+      queryClient.invalidateQueries({ queryKey: ["xps"] });
     } catch (error) {
       console.error("Erro ao remover XP:", error);
     }
@@ -149,7 +133,7 @@ export function AppPage() {
   };
 
   const handleCopyTitles = async () => {
-    const titles = filteredXPs.map((xp) => `- ${xp.title}`).join("\n");
+    const titles = titleFilteredXPs.map((xp) => `- ${xp.title}`).join("\n");
     try {
       await navigator.clipboard.writeText(titles);
     } catch (error) {
@@ -157,12 +141,11 @@ export function AppPage() {
     }
   };
 
-  // Calcular duração total dos XPs filtrados
   const totalDuration = useMemo(() => {
-    return filteredXPs.reduce((total, xp) => {
+    return titleFilteredXPs.reduce((total, xp) => {
       return total + (xp.duration || 0);
     }, 0);
-  }, [filteredXPs]);
+  }, [titleFilteredXPs]);
 
   return (
     <div className="flex min-h-screen justify-between flex-col">
@@ -203,16 +186,16 @@ export function AppPage() {
           ) : (
             <>
               <XPList
-                xps={filteredXPs}
+                xps={titleFilteredXPs}
                 onDelete={handleXPDeleted}
                 onItemClick={handleItemClick}
               />
-              {filteredXPs.length > 0 && (
+              {titleFilteredXPs.length > 0 && (
                 <div className="mt-0 flex items-center justify-between border-t pt-4">
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span>
-                      {filteredXPs.length} XP
-                      {filteredXPs.length !== 1 ? "s" : ""}
+                      {titleFilteredXPs.length} XP
+                      {titleFilteredXPs.length !== 1 ? "s" : ""}
                     </span>
                     {totalDuration > 0 && (
                       <span>
