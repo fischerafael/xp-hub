@@ -1,5 +1,5 @@
-import { categoryRepository } from "@/src/infra/repositories/category.repository";
-import { FirestoreRepository } from "@/src/infra/repositories/firestore.repository";
+import { categoryRepository } from "@/src/server/repositories/category.repository";
+import { FirestoreRepository } from "@/src/server/repositories/firestore.repository";
 
 export interface Category {
   id: string;

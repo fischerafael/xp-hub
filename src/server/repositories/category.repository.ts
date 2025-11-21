@@ -1,5 +1,5 @@
 import { FirestoreRepository } from "./firestore.repository";
-import type { Category } from "@/src/services/category-service";
+import type { Category } from "@/src/server/services/category-service";
 
 /**
  * Repository específico para Category usando Firestore

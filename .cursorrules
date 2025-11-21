@@ -16,15 +16,34 @@
 3. **Componentes reutilizáveis**: Ficam em `components/`
 4. **Utilitários**: Ficam em `lib/`
 
+## API Routes (`app/api/**/route.ts`)
+
+- API routes devem ser simples e diretas, apenas extraindo parâmetros e chamando services
+- **Nunca** incluir lógica de negócio nas rotas - toda lógica deve estar nos services
+- **Nunca** fazer validações de negócio nas rotas (validações de owner, campos obrigatórios, etc.)
+- **Nunca** usar try/catch desnecessários - deixar erros propagarem naturalmente
+- Extrair parâmetros de forma simples:
+  - Headers: `request.headers.get("header-name") || ""`
+  - SearchParams: `new URL(request.url).searchParams.get("param")`
+  - Body: `await request.json()`
+- Retornar diretamente: `return NextResponse.json(await serviceFunction(...))`
+- Usar searchParams para todos os parâmetros (nunca route params)
+- Status codes apenas quando necessário (ex: 201 para POST)
+
 ## Exemplo de Estrutura
 
 ```
 app/
   app/
     page.tsx          # Apenas: import { AppPage } from "@/src/routes/app"; export default function Page() { return <AppPage />; }
+  api/
+    xp/
+      route.ts        # API route simples que apenas chama xp-service
 src/
   routes/
     app.tsx           # Toda a lógica e estrutura da página /app
+  services/
+    xp-service.ts     # Toda a lógica de negócio do XP
 components/
   header.tsx
   footer.tsx

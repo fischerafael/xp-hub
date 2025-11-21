@@ -6,7 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Trash2 } from "lucide-react";
-import type { Category } from "@/src/services/category-service";
+import type { Category } from "@/src/server/services/category-service";
 
 interface TagListProps {
   tags: Category[];

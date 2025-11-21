@@ -1,5 +1,5 @@
 import { FirestoreRepository } from "./firestore.repository";
-import type { User } from "@/src/services/user-service";
+import type { User } from "@/src/server/services/user-service";
 
 /**
  * Repository específico para User usando Firestore

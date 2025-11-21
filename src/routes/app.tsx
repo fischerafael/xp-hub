@@ -12,8 +12,8 @@ import {
   getXpByOwnerIdWithFilters,
   removeXp,
   getItemById,
-} from "@/src/services/xp-service";
-import { getCategoriesByOwnerId } from "@/src/services/category-service";
+} from "@/src/server/services/xp-service";
+import { getCategoriesByOwnerId } from "@/src/server/services/category-service";
 import { useState, useMemo, useEffect } from "react";
 import { Copy } from "lucide-react";
 import { useAuth } from "@/src/contexts/auth-context";

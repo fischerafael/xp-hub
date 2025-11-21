@@ -1,5 +1,5 @@
 import type { XP } from "@/components/xp-list";
-import { xpRepository } from "@/src/infra/repositories/xp.repository";
+import { xpRepository } from "@/src/server/repositories/xp.repository";
 
 /**
  * Busca todos os XPs de um owner específico

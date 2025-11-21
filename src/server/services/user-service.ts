@@ -1,4 +1,4 @@
-import { userRepository } from "@/src/infra/repositories/user.repository";
+import { userRepository } from "@/src/server/repositories/user.repository";
 
 export interface User {
   id: string;

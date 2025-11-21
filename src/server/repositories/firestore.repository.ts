@@ -9,7 +9,7 @@ import {
   query,
   QueryConstraint,
 } from "firebase/firestore";
-import { firestore } from "@/src/infra/firebase/config";
+import { firestore } from "@/src/server/firebase/config";
 import type { Repository } from "./repository.interface";
 
 /**

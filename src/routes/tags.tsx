@@ -10,7 +10,7 @@ import {
   getCategoriesByOwnerId,
   removeCategory,
   getCategoryById,
-} from "@/src/services/category-service";
+} from "@/src/server/services/category-service";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/src/contexts/auth-context";
 import { useRouter } from "next/navigation";

@@ -7,12 +7,12 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import type { User } from "@/src/services/user-service";
-import { getUserByEmail, createUser } from "@/src/services/user-service";
+import type { User } from "@/src/server/services/user-service";
+import { getUserByEmail, createUser } from "@/src/server/services/user-service";
 import {
   signInWithGooglePopup,
   signOutFromFirebase,
-} from "@/src/infra/firebase/auth";
+} from "@/src/server/firebase/auth";
 
 interface AuthContextType {
   user: User | null;
