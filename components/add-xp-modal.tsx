@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Combobox } from "@/components/ui/combobox";
-import { addXp, editXp } from "@/src/server/services/xp-service";
+import { addXp, editXp } from "@/lib/xp-api";
 import { getCategoriesByOwnerId } from "@/src/server/services/category-service";
 import type { XP } from "@/components/xp-list";
 
@@ -129,7 +129,7 @@ export function AddXPModal({
       if (isEditing && editItemId) {
         await editXp(editItemId, xpData);
       } else {
-        await addXp(xpData);
+        await addXp(ownerId, xpData);
       }
 
       // Clear form

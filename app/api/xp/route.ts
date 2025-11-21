@@ -4,12 +4,19 @@ import {
   addXp,
   editXp,
   removeXp,
+  getItemById,
 } from "@/src/server/services/xp-service";
 
 export async function GET(request: Request) {
   const ownerId = request.headers.get("owner-id") || "";
   const url = new URL(request.url);
   const searchParams = url.searchParams;
+
+  const idParam = searchParams.get("id");
+
+  if (idParam) {
+    return NextResponse.json(await getItemById(idParam));
+  }
 
   const startDateParam = searchParams.get("startDate");
   const endDateParam = searchParams.get("endDate");

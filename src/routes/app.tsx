@@ -8,11 +8,7 @@ import { XPList } from "@/components/xp-list";
 import { AddXPModal } from "@/components/add-xp-modal";
 import { FilterMenu, SelectedCategories } from "@/components/filter-menu";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  getXpByOwnerIdWithFilters,
-  removeXp,
-  getItemById,
-} from "@/src/server/services/xp-service";
+import { getXpByOwnerIdWithFilters, removeXp, getItemById } from "@/lib/xp-api";
 import { getCategoriesByOwnerId } from "@/src/server/services/category-service";
 import { useState, useMemo, useEffect } from "react";
 import { Copy } from "lucide-react";
@@ -55,9 +51,7 @@ export function AppPage() {
         startDate,
         endDate,
         categoryIds:
-          selectedCategoryIds.length > 0
-            ? selectedCategoryIds
-            : undefined,
+          selectedCategoryIds.length > 0 ? selectedCategoryIds : undefined,
       });
     },
     enabled: !!ownerId,
@@ -124,9 +118,7 @@ export function AppPage() {
   };
 
   const handleCategoryRemove = (categoryId: string) => {
-    setSelectedCategoryIds((prev) =>
-      prev.filter((id) => id !== categoryId)
-    );
+    setSelectedCategoryIds((prev) => prev.filter((id) => id !== categoryId));
   };
 
   const formatDuration = (minutes?: number) => {

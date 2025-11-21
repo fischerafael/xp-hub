@@ -15,6 +15,7 @@
 2. **Rotas (`src/routes/*.tsx`)**: Contêm toda a lógica, estado, e estrutura da página
 3. **Componentes reutilizáveis**: Ficam em `components/`
 4. **Utilitários**: Ficam em `lib/`
+5. **Frontend nunca deve chamar services diretamente**: Todo acesso a services, repositories ou código protegido do servidor deve ser feito via API routes (`/api/**`). Use funções helper em `lib/` que fazem fetch para as rotas de API. Use TanStack Query (useQuery/useMutation) para gerenciar chamadas à API.
 
 ## API Routes (`app/api/**/route.ts`)
 
