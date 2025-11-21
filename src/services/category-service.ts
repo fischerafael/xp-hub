@@ -1,4 +1,5 @@
 import { categoryRepository } from "@/src/infra/repositories/category.repository";
+import { FirestoreRepository } from "@/src/infra/repositories/firestore.repository";
 
 export interface Category {
   id: string;
@@ -93,8 +94,11 @@ async function initializeCategoriesIfNeeded(): Promise<void> {
   const allCategories = await categoryRepository.getAll();
   if (allCategories.length === 0) {
     // Se não há categorias, inicializa com as categorias padrão
-    for (const category of initialCategories) {
-      await categoryRepository.create(category);
+    // Usa createWithId para manter os IDs específicos das categorias iniciais
+    if (categoryRepository instanceof FirestoreRepository) {
+      for (const category of initialCategories) {
+        await categoryRepository.createWithId(category);
+      }
     }
   }
 }
