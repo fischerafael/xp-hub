@@ -29,6 +29,10 @@
 - Retornar diretamente: `return NextResponse.json(await serviceFunction(...))`
 - Usar searchParams para todos os parâmetros (nunca route params)
 - Status codes apenas quando necessário (ex: 201 para POST)
+- **Todos os métodos HTTP** (GET, POST, PUT, DELETE) devem estar em uma única rota `route.ts`
+- **ownerId sempre nos headers** (nunca query params ou body) - usar header `owner-id`
+- **GET sempre com filtros via searchParams** (nunca body) - extrair `startDate`, `endDate`, `categoryIds` dos searchParams
+- Para arrays em searchParams: usar formato `?categoryIds=id1,id2` e fazer split por vírgula
 
 ## Exemplo de Estrutura
 
