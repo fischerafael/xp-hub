@@ -110,7 +110,7 @@ export async function getCategoriesByOwnerId(
   ownerId: string
 ): Promise<Category[]> {
   try {
-    await initializeCategoriesIfNeeded();
+    // await initializeCategoriesIfNeeded();
     const allCategories = await categoryRepository.getAll();
     return allCategories.filter((cat) => cat.ownerId === ownerId);
   } catch (error) {

@@ -38,6 +38,22 @@ export class FirestoreRepository<T extends { id: string }>
   }
 
   /**
+   * Remove campos undefined de um objeto
+   * Firestore não aceita valores undefined
+   */
+  private removeUndefinedFields(
+    data: Record<string, unknown>
+  ): Record<string, unknown> {
+    const cleaned: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(data)) {
+      if (value !== undefined) {
+        cleaned[key] = value;
+      }
+    }
+    return cleaned;
+  }
+
+  /**
    * Busca todos os itens da coleção
    */
   async getAll(): Promise<T[]> {
@@ -102,7 +118,10 @@ export class FirestoreRepository<T extends { id: string }>
       } as T;
 
       const docRef = this.getDocRef(newId);
-      await setDoc(docRef, item);
+      const cleanedData = this.removeUndefinedFields(
+        item as Record<string, unknown>
+      );
+      await setDoc(docRef, cleanedData);
 
       return newItem;
     } catch (error) {
@@ -125,8 +144,12 @@ export class FirestoreRepository<T extends { id: string }>
       }
 
       // Remover o id do objeto antes de salvar (o id é o documento ID no Firestore)
-      const { id, ...data } = item;
-      await setDoc(docRef, data);
+      const data = { ...item };
+      delete (data as { id?: string }).id;
+      const cleanedData = this.removeUndefinedFields(
+        data as Record<string, unknown>
+      );
+      await setDoc(docRef, cleanedData);
 
       return item;
     } catch (error) {
@@ -150,7 +173,10 @@ export class FirestoreRepository<T extends { id: string }>
         throw new Error(`Item com id ${id} não encontrado`);
       }
 
-      await updateDoc(docRef, updates as Record<string, unknown>);
+      const cleanedUpdates = this.removeUndefinedFields(
+        updates as Record<string, unknown>
+      );
+      await updateDoc(docRef, cleanedUpdates);
 
       const currentData = docSnapshot.data();
       const updatedItem = {
