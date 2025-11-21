@@ -16,15 +16,15 @@ const PopoverContent = PopoverPrimitive.Content;
 interface FilterMenuProps {
   titleFilter: string;
   onTitleFilterChange: (value: string) => void;
-  selectedCategoryTitles: string[];
-  onCategoryToggle: (categoryTitle: string) => void;
+  selectedCategoryIds: string[];
+  onCategoryToggle: (categoryId: string) => void;
   categories: Category[];
 }
 
 export function FilterMenu({
   titleFilter,
   onTitleFilterChange,
-  selectedCategoryTitles,
+  selectedCategoryIds,
   onCategoryToggle,
   categories,
 }: FilterMenuProps) {
@@ -63,14 +63,14 @@ export function FilterMenu({
             </label>
             <div className="max-h-[300px] overflow-auto space-y-1">
               {categories.map((category) => {
-                const isSelected = selectedCategoryTitles.includes(
-                  category.title
+                const isSelected = selectedCategoryIds.includes(
+                  category.id
                 );
                 return (
                   <button
                     key={category.id}
                     type="button"
-                    onClick={() => onCategoryToggle(category.title)}
+                    onClick={() => onCategoryToggle(category.id)}
                     className={cn(
                       "relative flex w-full cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground",
                       isSelected && "bg-accent"
@@ -99,22 +99,22 @@ export function FilterMenu({
 }
 
 interface SelectedCategoriesProps {
-  selectedCategoryTitles: string[];
-  onRemove: (categoryTitle: string) => void;
+  selectedCategoryIds: string[];
+  onRemove: (categoryId: string) => void;
   categories: Category[];
 }
 
 export function SelectedCategories({
-  selectedCategoryTitles,
+  selectedCategoryIds,
   onRemove,
   categories,
 }: SelectedCategoriesProps) {
-  if (selectedCategoryTitles.length === 0) {
+  if (selectedCategoryIds.length === 0) {
     return null;
   }
 
   const selectedCategories = categories.filter((cat) =>
-    selectedCategoryTitles.includes(cat.title)
+    selectedCategoryIds.includes(cat.id)
   );
 
   return (
@@ -127,7 +127,7 @@ export function SelectedCategories({
           {category.title}
           <button
             type="button"
-            onClick={() => onRemove(category.title)}
+            onClick={() => onRemove(category.id)}
             className="ml-1 rounded-sm hover:bg-secondary-foreground/20 p-0.5"
             aria-label={`Remover filtro ${category.title}`}
           >

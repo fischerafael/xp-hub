@@ -26,9 +26,7 @@ export function AppPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [titleFilter, setTitleFilter] = useState("");
-  const [selectedCategoryTitles, setSelectedCategoryTitles] = useState<
-    string[]
-  >([]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const queryClient = useQueryClient();
 
   // Redirecionar para home se não houver usuário logado
@@ -45,7 +43,7 @@ export function AppPage() {
       "xps",
       ownerId,
       selectedDate.toISOString(),
-      [...selectedCategoryTitles].sort().join(","),
+      [...selectedCategoryIds].sort().join(","),
     ],
     queryFn: () => {
       const startDate = new Date(selectedDate);
@@ -56,9 +54,9 @@ export function AppPage() {
       return getXpByOwnerIdWithFilters(ownerId, {
         startDate,
         endDate,
-        categoryTitles:
-          selectedCategoryTitles.length > 0
-            ? selectedCategoryTitles
+        categoryIds:
+          selectedCategoryIds.length > 0
+            ? selectedCategoryIds
             : undefined,
       });
     },
@@ -115,19 +113,19 @@ export function AppPage() {
     }
   };
 
-  const handleCategoryToggle = (categoryTitle: string) => {
-    setSelectedCategoryTitles((prev) => {
-      if (prev.includes(categoryTitle)) {
-        return prev.filter((title) => title !== categoryTitle);
+  const handleCategoryToggle = (categoryId: string) => {
+    setSelectedCategoryIds((prev) => {
+      if (prev.includes(categoryId)) {
+        return prev.filter((id) => id !== categoryId);
       } else {
-        return [...prev, categoryTitle];
+        return [...prev, categoryId];
       }
     });
   };
 
-  const handleCategoryRemove = (categoryTitle: string) => {
-    setSelectedCategoryTitles((prev) =>
-      prev.filter((title) => title !== categoryTitle)
+  const handleCategoryRemove = (categoryId: string) => {
+    setSelectedCategoryIds((prev) =>
+      prev.filter((id) => id !== categoryId)
     );
   };
 
@@ -164,7 +162,7 @@ export function AppPage() {
               <FilterMenu
                 titleFilter={titleFilter}
                 onTitleFilterChange={setTitleFilter}
-                selectedCategoryTitles={selectedCategoryTitles}
+                selectedCategoryIds={selectedCategoryIds}
                 onCategoryToggle={handleCategoryToggle}
                 categories={categories}
               />
@@ -177,7 +175,7 @@ export function AppPage() {
               </div>
             </div>
             <SelectedCategories
-              selectedCategoryTitles={selectedCategoryTitles}
+              selectedCategoryIds={selectedCategoryIds}
               onRemove={handleCategoryRemove}
               categories={categories}
             />
@@ -196,6 +194,7 @@ export function AppPage() {
                 xps={titleFilteredXPs}
                 onDelete={handleXPDeleted}
                 onItemClick={handleItemClick}
+                categories={categories}
               />
               {titleFilteredXPs.length > 0 && (
                 <div className="mt-0 flex items-center justify-between border-t pt-4">

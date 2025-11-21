@@ -38,9 +38,11 @@ orderBy("createdAt", "desc");
 
 ```javascript
 where("ownerId", "==", ownerId);
-where("tags", "array-contains-any", categoryTitles);
+where("tags", "array-contains-any", categoryIds);
 orderBy("createdAt", "desc");
 ```
+
+**Nota**: O campo `tags` armazena IDs das categorias (não títulos), permitindo integridade referencial e renomeação de categorias sem quebrar as referências.
 
 ---
 
@@ -60,9 +62,11 @@ orderBy("createdAt", "desc");
 where("ownerId", "==", ownerId);
 where("createdAt", ">=", startDate);
 where("createdAt", "<=", endDate);
-where("tags", "array-contains-any", categoryTitles);
+where("tags", "array-contains-any", categoryIds);
 orderBy("createdAt", "desc");
 ```
+
+**Nota**: O campo `tags` armazena IDs das categorias (não títulos), permitindo integridade referencial e renomeação de categorias sem quebrar as referências.
 
 ---
 
@@ -158,3 +162,8 @@ firebase deploy --only firestore:indexes
    - A ordem dos campos no índice deve corresponder à ordem na query
 
 3. **Performance**: Com os índices corretos, as queries serão executadas diretamente no Firestore, trazendo apenas os dados filtrados, melhorando performance e reduzindo custos de leitura.
+
+4. **Tags como IDs**: O campo `tags` nas XPs armazena IDs das categorias (não títulos). Isso permite:
+   - Integridade referencial: se uma categoria for renomeada, as referências nas XPs permanecem válidas
+   - Consistência: os IDs são imutáveis, enquanto títulos podem mudar
+   - Eficiência: queries continuam funcionando da mesma forma, pois ainda é um array de strings

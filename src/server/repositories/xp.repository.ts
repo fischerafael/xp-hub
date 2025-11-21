@@ -20,7 +20,7 @@ class XPRepository extends FirestoreRepository<XP> {
     options?: {
       startDate?: Date;
       endDate?: Date;
-      categoryTitles?: string[];
+      categoryIds?: string[];
     }
   ): Promise<XP[]> {
     // Construir constraints da query do Firestore
@@ -39,10 +39,10 @@ class XPRepository extends FirestoreRepository<XP> {
     }
 
     // Filtro por categorias (se fornecido)
-    // array-contains-any verifica se o array tags contém pelo menos uma das categorias
-    if (options?.categoryTitles && options.categoryTitles.length > 0) {
+    // array-contains-any verifica se o array tags contém pelo menos uma das categorias (IDs)
+    if (options?.categoryIds && options.categoryIds.length > 0) {
       constraints.push(
-        where("tags", "array-contains-any", options.categoryTitles)
+        where("tags", "array-contains-any", options.categoryIds)
       );
     }
 

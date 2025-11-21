@@ -22,7 +22,7 @@ export async function getXpByOwnerIdWithFilters(
   options?: {
     startDate?: Date;
     endDate?: Date;
-    categoryTitles?: string[];
+    categoryIds?: string[];
   }
 ): Promise<XP[]> {
   try {

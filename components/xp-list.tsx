@@ -6,6 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Trash2 } from "lucide-react";
+import type { Category } from "@/src/server/services/category-service";
 
 export interface XP {
   id: string;
@@ -21,9 +22,16 @@ interface XPListProps {
   xps: XP[];
   onDelete?: (id: string) => void;
   onItemClick?: (id: string) => void;
+  categories?: Category[];
 }
 
-export function XPList({ xps, onDelete, onItemClick }: XPListProps) {
+export function XPList({ xps, onDelete, onItemClick, categories = [] }: XPListProps) {
+  // Criar mapa de IDs para títulos de categorias
+  const categoryMap = new Map<string, string>();
+  categories.forEach((category) => {
+    categoryMap.set(category.id, category.title);
+  });
+
   const formatTime = (timeString: string) => {
     const date = new Date(timeString);
     return date.toLocaleTimeString("pt-BR", {
@@ -77,14 +85,17 @@ export function XPList({ xps, onDelete, onItemClick }: XPListProps) {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap items-center gap-2">
-              {xp.tags.map((tag, index) => (
-                <span
-                  key={index}
-                  className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground"
-                >
-                  {tag}
-                </span>
-              ))}
+              {xp.tags.map((tagId, index) => {
+                const tagTitle = categoryMap.get(tagId) || tagId;
+                return (
+                  <span
+                    key={index}
+                    className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground"
+                  >
+                    {tagTitle}
+                  </span>
+                );
+              })}
               {xp.duration && (
                 <span className="ml-auto text-xs text-muted-foreground">
                   {formatDuration(xp.duration)}

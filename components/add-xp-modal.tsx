@@ -81,9 +81,10 @@ export function AddXPModal({
   });
 
   // Transform categories to tagOptions format
+  // Use category.id as value and category.title as label
   const tagOptions = useMemo(() => {
     return categories.map((category) => ({
-      value: category.title,
+      value: category.id,
       label: category.title,
     }));
   }, [categories]);
