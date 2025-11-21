@@ -14,13 +14,14 @@ export async function getXpByOwnerId(ownerId: string): Promise<XP[]> {
 }
 
 /**
- * Busca XPs de um owner específico com filtros opcionais de data e categorias
+ * Busca XPs de um owner específico com filtros opcionais de range de datas e categorias
  * Aplica ordenação por createdAt (mais recente primeiro)
  */
 export async function getXpByOwnerIdWithFilters(
   ownerId: string,
   options?: {
-    date?: Date;
+    startDate?: Date;
+    endDate?: Date;
     categoryTitles?: string[];
   }
 ): Promise<XP[]> {
@@ -31,16 +32,11 @@ export async function getXpByOwnerIdWithFilters(
     // Aplicar filtros
     let filtered = allXPs;
 
-    // Filtro por data (se fornecido)
-    if (options?.date) {
-      const startOfDay = new Date(options.date);
-      startOfDay.setHours(0, 0, 0, 0);
-      const endOfDay = new Date(options.date);
-      endOfDay.setHours(23, 59, 59, 999);
-
+    // Filtro por range de datas (se fornecido)
+    if (options?.startDate && options?.endDate) {
       filtered = filtered.filter((xp) => {
         const xpDate = new Date(xp.createdAt);
-        return xpDate >= startOfDay && xpDate <= endOfDay;
+        return xpDate >= options.startDate! && xpDate <= options.endDate!;
       });
     }
 

@@ -47,14 +47,21 @@ export function AppPage() {
       selectedDate.toISOString(),
       [...selectedCategoryTitles].sort().join(","),
     ],
-    queryFn: () =>
-      getXpByOwnerIdWithFilters(ownerId, {
-        date: selectedDate,
+    queryFn: () => {
+      const startDate = new Date(selectedDate);
+      startDate.setHours(0, 0, 0, 0);
+      const endDate = new Date(selectedDate);
+      endDate.setHours(23, 59, 59, 999);
+
+      return getXpByOwnerIdWithFilters(ownerId, {
+        startDate,
+        endDate,
         categoryTitles:
           selectedCategoryTitles.length > 0
             ? selectedCategoryTitles
             : undefined,
-      }),
+      });
+    },
     enabled: !!ownerId,
   });
 
