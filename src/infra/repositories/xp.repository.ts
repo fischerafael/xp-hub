@@ -1,7 +1,7 @@
-import { LocalStorageRepository } from "./local-storage.repository";
+import { FirestoreRepository } from "./firestore.repository";
 import type { XP } from "@/components/xp-list";
 
 /**
- * Repository específico para XP usando localStorage
+ * Repository específico para XP usando Firestore
  */
-export const xpRepository = new LocalStorageRepository<XP>("xps");
+export const xpRepository = new FirestoreRepository<XP>("xps");
