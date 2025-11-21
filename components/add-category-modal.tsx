@@ -12,10 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  addCategory,
-  editCategory,
-} from "@/src/server/services/category-service";
+import { addCategory, editCategory } from "@/lib/category-api";
 import type { Category } from "@/src/server/services/category-service";
 
 interface AddCategoryModalProps {
@@ -95,7 +92,7 @@ export function AddCategoryModal({
       if (isEditing && editCategoryId) {
         await editCategory(editCategoryId, categoryData);
       } else {
-        await addCategory(categoryData);
+        await addCategory(ownerId, categoryData);
       }
 
       // Clear form

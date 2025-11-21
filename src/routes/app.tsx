@@ -9,7 +9,7 @@ import { AddXPModal } from "@/components/add-xp-modal";
 import { FilterMenu, SelectedCategories } from "@/components/filter-menu";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getXpByOwnerIdWithFilters, removeXp, getItemById } from "@/lib/xp-api";
-import { getCategoriesByOwnerId } from "@/src/server/services/category-service";
+import { getCategoriesByOwnerId } from "@/lib/category-api";
 import { useState, useMemo, useEffect } from "react";
 import { Copy } from "lucide-react";
 import { useAuth } from "@/src/contexts/auth-context";
