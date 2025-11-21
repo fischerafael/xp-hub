@@ -8,8 +8,12 @@ import { XPList } from "@/components/xp-list";
 import { AddXPModal } from "@/components/add-xp-modal";
 import { FilterMenu, SelectedCategories } from "@/components/filter-menu";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getXpByOwnerIdWithFilters, removeXp, getItemById } from "@/lib/xp-api";
-import { getCategoriesByOwnerId } from "@/lib/category-api";
+import {
+  getXpByOwnerIdWithFilters,
+  removeXp,
+  getItemById,
+} from "@/src/services/xp-api";
+import { getCategoriesByOwnerId } from "@/src/services/category-api";
 import { useState, useMemo, useEffect } from "react";
 import { Copy } from "lucide-react";
 import { useAuth } from "@/src/contexts/auth-context";

@@ -14,8 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Combobox } from "@/components/ui/combobox";
-import { addXp, editXp } from "@/lib/xp-api";
-import { getCategoriesByOwnerId } from "@/lib/category-api";
+import { addXp, editXp } from "@/src/services/xp-api";
+import { getCategoriesByOwnerId } from "@/src/services/category-api";
 import type { XP } from "@/components/xp-list";
 
 interface AddXPModalProps {

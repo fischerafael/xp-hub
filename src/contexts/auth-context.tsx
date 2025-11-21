@@ -8,7 +8,7 @@ import {
   ReactNode,
 } from "react";
 import type { User } from "@/src/server/services/user-service";
-import { getUserByEmail, createUser } from "@/src/server/services/user-service";
+import { getUserByEmail, createUser } from "@/src/services/user-api";
 import {
   signInWithGooglePopup,
   signOutFromFirebase,

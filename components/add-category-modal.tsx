@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { addCategory, editCategory } from "@/lib/category-api";
+import { addCategory, editCategory } from "@/src/services/category-api";
 import type { Category } from "@/src/server/services/category-service";
 
 interface AddCategoryModalProps {
